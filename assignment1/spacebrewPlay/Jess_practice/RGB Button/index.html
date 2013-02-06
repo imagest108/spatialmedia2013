@@ -1,0 +1,178 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+    <title>RGB button</title>
+
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="css/reset.css" type="text/css" media="screen" charset="utf-8" />
+    <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" />
+    <script type="text/javascript" src="js/jq.js"></script>
+    <script type="text/javascript" src="js/sb.js"></script>
+    <script type="text/javascript">
+
+      $(window).on("load", setup);
+      
+      // Spacebrew Object
+      var sb;
+
+      var r = 255;
+      var g = 255;
+      var b = 255;
+
+      /**
+       * setup Configure spacebrew connection and adds the mousedown listener.
+       */
+      function setup (){
+        // create spacebrew client object
+        sb = new Spacebrew.Client();
+
+        // set the base description
+       sb.description("This is a spacebrew practice based on javascript-button example. R/G/B buttons will change background color's RGB ratio.");
+
+
+        // configure the publication and subscription feeds
+        sb.addPublish( "buttonPressR", "boolean", "false" );
+        sb.addPublish( "colorR", "range", r );
+        sb.addSubscribe( "changeR", "range" );
+
+        sb.addPublish( "buttonPressG", "boolean", "false" );
+        sb.addPublish( "colorG", "range", g );
+        sb.addSubscribe( "changeG", "range" );
+
+        sb.addPublish( "buttonPressB", "boolean", "false" );
+        sb.addPublish( "colorB", "range", b );
+        sb.addSubscribe( "changeB", "range" );
+
+       
+        // override Spacebrew events - this is how you catch events coming from Spacebrew
+        sb.onRangeMessage = onRangeMessage;
+        sb.onStringMessage = onStringMessage;
+
+        // connect to spacbrew
+        sb.connect();
+
+        // listen to the mouse 
+        $("#buttonMsgR").on("mousedown", onButtonPressR);
+        $("#buttonMsgG").on("mousedown", onButtonPressG);
+        $("#buttonMsgB").on("mousedown", onButtonPressB);
+      }
+
+      /**
+       * changeBGC Function that changes the color using a range value as an input. It cycles between different
+       *           grey values.
+       * @param  {Integer} pColor Value used to set the color
+       */
+
+      var myCVal;
+
+      function changeRV(updatedR){
+        
+        var updatedG = g;
+        var updatedB = b;
+        var tColor = "rgb("+updatedR+","+updatedG+","+updatedB+")";
+        document.body.style.background = tColor; //color;
+        console.log("Changed color", tColor);
+      }
+      function changeGV(updatedG){
+        
+        var updatedR = r;
+        var updatedB = b;
+        var tColor = "rgb("+updatedR+","+updatedG+","+updatedB+")";
+        document.body.style.background = tColor; //color;
+        console.log("Changed color", tColor);
+      }
+      function changeBV(updatedB){
+        
+        var updatedR = r;
+        var updatedG = g;
+        var tColor = "rgb("+updatedR+","+updatedG+","+updatedB+")";
+        document.body.style.background = tColor; //color;
+        console.log("Changed color", tColor);
+      }
+
+      /**
+       * onButtonPress Function that is called whenever the button is pressed.  
+       * @param  {Event object} evt Holds information about the button press event
+       */
+      function onButtonPressR (evt){
+        
+        if(r<=0){
+          r=0;
+        }else{
+          r= r-5;
+        }
+        console.log("Sending message"); 
+        sb.send("buttonPressR", "boolean", "true");
+        sb.send("buttonPressG", "boolean", "false");
+        sb.send("buttonPressB", "boolean", "false");
+        sb.send("colorR", "range", r );
+        }
+
+      function onButtonPressG (evt){
+        if(r<=0){
+          g=0;
+        }else{
+          g= g-5;
+        }
+        console.log("Sending message"); 
+        sb.send("buttonPressR", "boolean", "false");
+        sb.send("buttonPressG", "boolean", "true");
+        sb.send("buttonPressB", "boolean", "false");
+        sb.send("colorG", "range", g );
+        }
+      
+      function onButtonPressB (evt){
+        if(b<=0){
+          b=0;
+        }else{
+          b= b-5;
+        }
+        console.log("Sending message");
+        sb.send("buttonPressR", "boolean", "false");
+        sb.send("buttonPressG", "boolean", "false");
+        sb.send("buttonPressB", "boolean", "true");
+        sb.send("colorB", "range", b );
+        }
+      /**
+       * onRangeMessage Function that is called whenever new spacebrew range messages are received.
+       *          It accepts two parameters:
+       * @param  {String} name    Holds name of the subscription feed channel
+       * @param  {Integer} value  Holds value received from the subscription feed
+       */
+      function onRangeMessage( name, value){
+        console.log("received color message");
+        
+        if(name="colorR"){
+          changeRV(value);
+        }
+        else if(name="colorG"){
+          changeGV(value);
+        }
+        else if(name="colorB"){
+          changeBV(value);
+        }
+
+      }
+
+      /**
+       * onStringMessage Function that is called whenever new spacebrew string messages are received.
+       *          It accepts two parameters:
+       * @param  {String} name    Holds name of the subscription feed channel
+       * @param  {String} value   Holds text message received from the subscription feed
+       */
+      function onStringMessage( name, value ){
+        console.log("received text message ", value); 
+        document.getElementById("buttonMsg").innerHTML = value;        
+      }
+
+</script>
+		<!-- MAIN -->
+	</head>
+	<body>
+		
+		<h3 id="numclicks"></h3>
+    <a class="button" id="buttonMsgR">R</a>
+    <a class="button" id="buttonMsgG">G</a>
+    <a class="button" id="buttonMsgB">B</a>
+   </body>
+</html>
