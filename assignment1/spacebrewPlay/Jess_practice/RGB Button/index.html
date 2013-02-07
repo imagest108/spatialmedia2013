@@ -71,7 +71,7 @@
         var updatedB = b;
         var tColor = "rgb("+updatedR+","+updatedG+","+updatedB+")";
         document.body.style.background = tColor; //color;
-        console.log("Changed color", tColor);
+        console.log("Changed color R", tColor);
       }
       function changeGV(updatedG){
         
@@ -79,7 +79,7 @@
         var updatedB = b;
         var tColor = "rgb("+updatedR+","+updatedG+","+updatedB+")";
         document.body.style.background = tColor; //color;
-        console.log("Changed color", tColor);
+        console.log("Changed color G", tColor);
       }
       function changeBV(updatedB){
         
@@ -87,7 +87,7 @@
         var updatedG = g;
         var tColor = "rgb("+updatedR+","+updatedG+","+updatedB+")";
         document.body.style.background = tColor; //color;
-        console.log("Changed color", tColor);
+        console.log("Changed color B", tColor);
       }
 
       /**
@@ -95,7 +95,7 @@
        * @param  {Event object} evt Holds information about the button press event
        */
       function onButtonPressR (evt){
-        
+        console.log("R")
         if(r<=0){
           r=0;
         }else{
@@ -109,7 +109,7 @@
         }
 
       function onButtonPressG (evt){
-        if(r<=0){
+        if(g<=0){
           g=0;
         }else{
           g= g-5;
@@ -140,15 +140,14 @@
        * @param  {Integer} value  Holds value received from the subscription feed
        */
       function onRangeMessage( name, value){
-        console.log("received color message");
-        
-        if(name="colorR"){
+        console.log("received color message "+name);
+        if(name=="changeR"){
           changeRV(value);
         }
-        else if(name="colorG"){
+        else if(name=="changeG"){
           changeGV(value);
         }
-        else if(name="colorB"){
+        else if(name=="changeB"){
           changeBV(value);
         }
 
