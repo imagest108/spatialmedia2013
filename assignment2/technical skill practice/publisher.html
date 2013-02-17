@@ -1,0 +1,70 @@
+<html>
+<head>
+
+	<script type="text/javascript" src="jq.js"></script>
+
+    <script type="text/javascript" src="sb.js"></script>
+
+    <script type="text/javascript">
+      
+      // when window loads call the setup method
+      $(window).on("load", setup);
+
+      // Variable that will hold the spacebrew client object
+      var sb;
+
+      /**
+       * setup Function that connect to spacebrew and creates a listener for clicks of the submit button.
+       */
+      function setup (){
+        // setup spacebrew
+        sb = new Spacebrew.Client();  // create spacebrew client object
+        sb.description("sink think sketch made by Jess"); // set the app description
+        
+        sb.addPublish("buttonPress", "boolean", "false");  // create the publication feed
+        sb.addPublish("text", "string", "");  // create the publication 
+
+        // override Spacebrew events - this is how you catch events coming from Spacebrew
+        //sb.onRangeMessage = onRangeMessage;
+        //sb.onStringMessage = onStringMessage;
+
+        sb.connect();   // connect to spacebrew
+
+        // listen to button clicks
+        $("#button").on("mousedown", onMouseDown);
+      }
+
+      /**
+       * onMouseDown Function that is called when the submit button is pressed. It reads the
+       *     text in the input box, and then sends it to spacebrew. It accepts a mouse event
+       *     object, though we don't use it in this example.
+       */
+      function onMouseDown (evt){
+        var newString = $("#myword").val();   // load text from input box
+        if (newString !== "") {               // if input box is not blank
+          console.log("Sending message " + newString); 
+          sb.send("text", "string", newString);   // send string to spacebrew
+          sb.send("buttonPress", "boolean", "true");
+          $("#string").val("");                   // clear the text box
+          $("#status").text("sent message: " + newString); // display the sent message in the browser         
+        }
+      }
+    </script>
+
+</head>
+
+
+
+
+<body>
+<input type="text" name= "word" id= "myword" />
+<button type="button" id="button">SEND</button>
+</body>
+
+
+
+</htmll>
+
+
+
+
