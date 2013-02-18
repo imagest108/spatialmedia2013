@@ -11,15 +11,15 @@ PFont font;
 ArrayList wordsArray;
 
 String typing = "";
-boolean entered = false;
-boolean keyWasReleased = true;
 
 Bubbles[] bubbles = new Bubbles[20];
 
 void setup() {
 
-  size(300, 600, P3D);
+  size(400, 800, P3D);
 
+  frameRate(4);
+  
   wordsArray = new ArrayList();
   font = loadFont("LucidaBright-Italic-48.vlw");
   
@@ -44,14 +44,23 @@ void setup() {
 
 void draw() {
 
-  background(255);
-  //createWord(typing);
+  background(0);
+  
+  if(!typing.equals("")){
+    createWord(typing);
+    typing = "";
+  }
   displayWord();
+  
+  
+  
+  
 
 }
 
 void createWord(String input) {
   wordsArray.add(new Word(input));
+  
 
 }
 
@@ -83,13 +92,16 @@ void onRangeMessage( String name, int value ){
 }
 
 void onBooleanMessage( String name, boolean value ){
-  println("got bool message "+name +" : "+ value);  
+  println("got bool message "+name +" : "+ value); 
+
 }
 
 void onStringMessage( String name, String value ){
-  //println("got string message "+name +" : "+ value); 
+  println("got string message "+name +" : "+ value); 
   typing = value;
-  println(typing);
+  //println(typing);
+  //createWord(typing); 
+  
 }
 
 
@@ -108,7 +120,7 @@ class Bubbles {
   }
   
   void display(){
-    stroke(0,80);
+    stroke(255,80);
     strokeWeight(2);
     noFill();
     ellipse(x+random(0,100),y-random(0,50),d,d);
@@ -153,7 +165,7 @@ class Bubbles {
 
   float updatePositionX() {
     for (float i=0; i<width ; i++) {
-      frameRate(4);
+      
       gravity= gravity+inc;
       
       float n=noise(gravity)*20.0;
