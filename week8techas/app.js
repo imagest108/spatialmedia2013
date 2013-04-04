@@ -9,7 +9,9 @@ var express = require('express')
   , http = require('http')
   , path = require('path')
   , Spacebrew = require('./sb-1.0.3.js')
-  , twitter = require('ntwitter');
+  , twitter = require('ntwitter')
+  , request = require('request')
+  , urlParser = require('url');
 
 var app = express();
 
@@ -38,7 +40,7 @@ http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
 });
 
-var kewards = "";
+var kewards = "#sanfrancisco, #nyc";
 
 var name = "twitter counter";
 var server = "sandbox.spacebrew.cc";
@@ -48,9 +50,11 @@ var sb = new Spacebrew.Spacebrew.Client(server, name, description);
 
 sb.addPublish("NYCtotal", "range", "A number of tweet from NYC");
 sb.addPublish("NYCtweet", "string", "A text of tweet from NYC");
+sb.addPublish("NYCphoto", "string", "A photo posted from NYC")
 
 sb.addPublish("SFtotal", "range", "A number of tweet from SF");
 sb.addPublish("SFtweet", "string", "A text of tweet from SF");
+sb.addPublish("SFphoto", "string", "A photo posted from SF");
 
 
 sb.connect();
@@ -62,82 +66,37 @@ var twit = new twitter({
 	access_token_secret : "0pkVvDXL7f6QcuX21csoEIqQ8lzR8wljdGcm1Mw4mBE"
 });
 
-/*
 
-var filterNY = {'locations':"-74,40,-73,41"};
+var filters = {'track': kewards}; //???hashtags?
+//var filters =  {'locations':"-74,40,-73,41"};
 
-var i = 0;
+var nyCounter = 0;
+var sfCounter = 0;
 
-
-twit.stream('statuses/filter', filterNY, function(stream){
-
-stream.on('data', function(data){
-		//console.log(data.text;
-		//i++;
-
-		
-		if(sb._isConnected){
-			sb.send("NYCtweet","string",data.text);
-			i++;
-		}
-	});
-});
-
-setInterval(function(){
-	console.log(i+"twits from NYC detected in last 30 seconds");
-	sb.send("NYCtotal","range",i);
-	i = 0;
-
-},30000);
-
-
-
-var filterSF = {'locations':"-180,-90,180,90"};
-//var filterSF = {'track':"I"};
-
-
-var j=0;
-
-
-twit.stream('statuses/filter', filterSF, function(stream){
-
-stream.on('data', function(data){
-		//console.log(data.text;
-		//j++;
-
-		
-		if(sb._isConnected){
-			sb.send("SFtweet","string",data.text);
-			j++;
-		}
-	});
-});
-
-setInterval(function(){
-	console.log(j+ "twits from San Francisco detected in last 30 seconds");
-	sb.send("SFtotal","range",j);
-	j = 0;
-
-},30000);
-*/	
-
-var filters = {'track':"#NYC", "#seoul"}; //???hashtags?
-var i = 0;
-var j = 0;
-
-twit.stream('statues/filter', filters, function(stream){
+twit.stream('statuses/filter', filters, function(stream){
 
 	stream.on('data', function(data){
-		if(data.hashtags == "#NYC"){
-			i++;
-			if(sb._isConnected){
-			sb.send("NYCtweet","string",data.text);
+
+		var myTagArray = data.entities.hashtags;
+		for (var i = 0; i< myTagArray.length; i++){
+			if(myTagArray[i].text == "nyc"){
+				nyCounter++;
+				if(sb._isConnected){
+				sb.send("NYCtweet","string",data.text);
+				sb.send("NYCtotal","range",nyCounter);
+				var myUrl = urlParser.parse(data.text);
+				console.log(myUrl.href);
+				//sb.send("NYCphoto","string", data)
+				console.log(nyCounter+ " Twits from NYC : "+ data.text);
+				}
 			}
-		}
-		if(data.hashtags == "#seoul"){
-			j++;
-			if(sb._isConnected){
-			sb.send("SFtweet","string",data.text);
+			if(myTagArray[i].text == "sanfrancisco"){
+				sfCounter++;
+				if(sb._isConnected){
+				sb.send("SFtweet","string",data.text);
+				sb.send("SFtotal","range",sfCounter);
+				console.log(sfCounter+ " Twits from San Francisco : "+ data.text);
+				}
 			}
 		}
 
@@ -145,13 +104,5 @@ twit.stream('statues/filter', filters, function(stream){
 
 });
 
-setInterval(function(){
-
-console.log(i+ "twits from New York City detected in last 30 seconds");
-console.log(j+ "twits from San Francisco detected in last 30 seconds");
-i = 0;
-j = 0;
-
-},3000);
 
 
