@@ -40,14 +40,15 @@ http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
 });
 
-var kewards = "#sanfrancisco, #nyc";
+var kewards = "spring";
 
 var name = "twitter counter";
 var server = "sandbox.spacebrew.cc";
 var description = "twitter feed analysis for " + kewards;
 var sb = new Spacebrew.Spacebrew.Client(server, name, description);
 
-
+sb.addPublish("imageurl","string","imageurl from tweeter+instagra");
+/*
 sb.addPublish("NYCtotal", "range", "A number of tweet from NYC");
 sb.addPublish("NYCtweet", "string", "A text of tweet from NYC");
 sb.addPublish("NYCphoto", "string", "A photo posted from NYC")
@@ -55,7 +56,7 @@ sb.addPublish("NYCphoto", "string", "A photo posted from NYC")
 sb.addPublish("SFtotal", "range", "A number of tweet from SF");
 sb.addPublish("SFtweet", "string", "A text of tweet from SF");
 sb.addPublish("SFphoto", "string", "A photo posted from SF");
-
+*/
 
 sb.connect();
 
@@ -77,6 +78,25 @@ twit.stream('statuses/filter', filters, function(stream){
 
 	stream.on('data', function(data){
 
+		var url = "";
+
+		if(data.source == '<a href="http://instagram.com" rel="nofollow">Instagram</a>'){
+			//console.log(data.text.split(" "));
+			var myTextArray = data.text.split(" ");
+
+			for(var i= 0; i<myTextArray.length; i++){
+
+				url = myTextArray[myTextArray.length-1];
+				
+				}	
+				if(sb._isConnected){
+					sb.send("imageurl","string",url);
+				}
+			}
+		
+
+
+/*
 		var myTagArray = data.entities.hashtags;
 		for (var i = 0; i< myTagArray.length; i++){
 			if(myTagArray[i].text == "nyc"){
@@ -98,8 +118,9 @@ twit.stream('statuses/filter', filters, function(stream){
 				console.log(sfCounter+ " Twits from San Francisco : "+ data.text);
 				}
 			}
-		}
 
+		}
+*/
 	});
 
 });
