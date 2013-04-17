@@ -10,8 +10,9 @@ var express = require('express')
   , path = require('path')
   , Spacebrew = require('./sb-1.0.3.js')
   , twitter = require('ntwitter')
-  , request = require('request')
-  , urlParser = require('url');
+  , httpreq = require('request')
+  , urlParser = require('url')
+  , jsdom = require('jsdom');
 
 var app = express();
 
@@ -47,7 +48,8 @@ var server = "sandbox.spacebrew.cc";
 var description = "twitter feed analysis for " + kewards;
 var sb = new Spacebrew.Spacebrew.Client(server, name, description);
 
-sb.addPublish("imageurl","string","imageurl from tweeter+instagra");
+sb.addPublish("imageurl","string","imageurl from tweeter+instagram");
+sb.addPublish("texts","string","texts from tweeter+instagram");
 /*
 sb.addPublish("NYCtotal", "range", "A number of tweet from NYC");
 sb.addPublish("NYCtweet", "string", "A text of tweet from NYC");
@@ -71,27 +73,62 @@ var twit = new twitter({
 var filters = {'track': kewards}; //???hashtags?
 //var filters =  {'locations':"-74,40,-73,41"};
 
-var nyCounter = 0;
-var sfCounter = 0;
+//var nyCounter = 0;
+//var sfCounter = 0;
 
 twit.stream('statuses/filter', filters, function(stream){
 
 	stream.on('data', function(data){
 
 		var url = "";
+		var rest = "";
 
 		if(data.source == '<a href="http://instagram.com" rel="nofollow">Instagram</a>'){
 			//console.log(data.text.split(" "));
 			var myTextArray = data.text.split(" ");
 
 			for(var i= 0; i<myTextArray.length; i++){
-
 				url = myTextArray[myTextArray.length-1];
-				
 				}	
+
+			for(var j = 0; j<myTextArray.length-1; j++){
+				rest = rest + myTextArray[j];
+				}
+					
 				if(sb._isConnected){
 					sb.send("imageurl","string",url);
+					sb.send("texts","string",rest);
+					console.log(url);
+					console.log("-------------------");
+					console.log(rest);
 				}
+				/*
+
+				httpreq(url, function(error,response,body){
+				//console.log(url,"hi",response);
+				//response.setEncoding('utf8');
+				var myhtml = response.body;
+				//var myMeta = myhtml.getElementsByTagName("meta");
+				//console.log(typeof(myMeta));
+
+
+				jsdom.jQuerufy(myhtml,["http://code.jquery.com/jquery.js"],function(errors, window) {
+   				window.$("img.photo").
+   				console.log(window.$("div.media-photo").text());
+ 				});	
+
+ 				});
+
+				//request(url, function (error, response, body) {
+				//	var myhtml = response.write();
+				//	console.log(myhtml);
+				//});
+
+				 	//			 if (!error && response.statusCode == 200) {
+ 				 //var x = myhtml.getElementsByTagName("meta");
+   				 //console.log("***********"+x); // Print the google web page.
+  				//	}
+  				*/
 			}
 		
 

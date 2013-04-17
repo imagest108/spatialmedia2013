@@ -1,0 +1,18 @@
+{
+  "name": "skyroom",
+  "version": "0.0.1",
+
+  "dependencies": {
+    "express": "3.2.0",
+    "ejs": "*",
+    "ws": "~0.4.25",
+    "hogan-express" : "0.3.3",
+    "moment" : "1.7.2",
+    "request" : "2.16.6"
+  },
+
+  "engines" : {
+    "node" : "0.8.x",
+    "npm" : "1.1.x"
+  }
+}
